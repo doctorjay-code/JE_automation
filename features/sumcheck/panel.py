@@ -677,6 +677,10 @@ class App:
         """
         한 행의 셀값만 다시 읽는다.
         시트명·셀위치·파일을 고쳤을 때 [스캔] 없이 바로 반영하기 위한 것.
+
+        ※ 엑셀을 띄우지 않고 저장된 값을 읽는다. (0.01초)
+           엑셀을 열면 한 행인데도 6초 넘게 걸려서 화면이 멈춘다.
+           계산식이라 저장된 값이 없으면 [스캔] 으로 안내한다.
         """
         r["value"], r["err"] = None, ""
         path = r.get("path") or ""
@@ -686,15 +690,11 @@ class App:
             r["err"] = "파일 없음"
             return
         try:
-            if self.var_do_excel.get():
-                self.var_status.set("값 다시 읽는 중... " + os.path.basename(path))
-                self.root.update_idletasks()
-                res = process_with_excel(
-                    [{"path": path, "sheet": r["sheet"], "cell": r["cell"]}])
-                val, note = res.get(path, (None, ""))
-            else:
-                val, note = read_cell_openpyxl(path, r["sheet"], r["cell"])
+            val, note = read_cell_openpyxl(path, r["sheet"], r["cell"])
             r["value"], r["err"] = val, note
+            if val is None and not note:
+                self.var_status.set(
+                    "저장된 값이 비어 있습니다. [스캔]을 누르면 엑셀에서 다시 읽습니다.")
         except Exception as e:
             r["err"] = str(e)
 
@@ -714,8 +714,18 @@ class App:
         var = tk.StringVar(value=str(r.get(key) or ""))
         ent = ttk.Entry(dlg, textvariable=var, font=FONT_UI, width=48)
         ent.pack(padx=14, pady=10, fill="x")
-        ent.focus_set()
-        ent.select_range(0, "end")
+
+        def _focus():
+            # 창이 뜬 '뒤에' 포커스를 준다.
+            # (뜨기 전에 주면 한글 입력 중인 글자가 선택 영역과 겹쳐 보인다)
+            try:
+                dlg.grab_set()          # 이 창에만 입력되게 (모달)
+                ent.focus_force()
+                ent.icursor("end")      # 커서를 끝에 둔다 (전체 선택하면 첫 글자가 다 지워짐)
+            except Exception:
+                pass
+
+        dlg.after(30, _focus)
 
         def confirm(_=None):
             val = var.get().strip()

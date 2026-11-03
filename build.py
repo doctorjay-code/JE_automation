@@ -37,7 +37,7 @@ BASE = os.path.dirname(os.path.abspath(__file__))
 LOCAL_PY_FILE = os.path.join(BASE, "_dev", "build_python.txt")
 
 # 버전을 올릴 때는 여기와 main.py 의 APP_VERSION, CHANGELOG.md 를 같이 고친다.
-APP_VERSION = "1.1.10"
+APP_VERSION = "1.1.11"
 
 # exe 파일 이름은 **고정**입니다. (JE_automation.exe)
 #  - 이름에 버전을 붙이면 자동 업데이트 때마다 exe 가 쌓이고, 바로가기가 깨진다
