@@ -149,8 +149,10 @@ def _from_version_json():
     push 직후에는 옛 내용이 올 수 있다.
     그래서 API(캐시 없음)로 먼저 읽고, 실패하면 raw 로 넘어간다.
     """
+    # API 응답도 60초 캐시된다(Cache-Control: max-age=60).
+    # push 직후 바로 반영되도록 주소 뒤에 매번 다른 값을 붙인다.
     candidates = (
-        (VERSION_API, "application/vnd.github.raw"),
+        ("{}&t={}".format(VERSION_API, int(time.time())), "application/vnd.github.raw"),
         ("{}/version.json?t={}".format(RAW_BASE, int(time.time())), None),
     )
 
