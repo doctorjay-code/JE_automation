@@ -1,0 +1,12 @@
+{
+  "version": "1.1.8",
+  "exe_url": "https://raw.githubusercontent.com/doctorjay-code/JE_automation/main/update/JE_automation.exe",
+  "exe_file": "JE_automation.exe",
+  "deps": "759f66ba4a82f7d0",
+  "full_url": "",
+  "full_file": "",
+  "notes": [
+    "사유 매핑 기본값 정리 (규칙은 직접 추가)",
+    "문서·주석 정리"
+  ]
+}

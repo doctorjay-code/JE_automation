@@ -1,0 +1,56 @@
+# JE automation .gitignore
+
+# --- Python ---
+__pycache__/
+*.py[codz]
+*$py.class
+*.so
+
+# --- PyInstaller 빌드 산물 ---
+# dist/ 안의 zip(약 29MB)은 git 에 넣지 않고 GitHub Releases 에 올립니다.
+build/
+dist/
+*.spec
+*.manifest
+
+# --- 사용자 설정 (개인 데이터) ---
+# 이름이 뭐든 루트의 json 은 올리지 않는다. 예외는 version.json 하나뿐.
+# (설정 파일 이름은 앞으로 또 바뀔 수 있으므로 이름 패턴 대신 위치로 막는다)
+/*.json
+!/version.json
+!/changelog.json
+*.log
+
+# --- 백업 / 임시 ---
+backup/
+*.bak
+*.backup
+*.tmp
+backup_temp/
+
+# --- 개발용 스크립트 / 예시 ---
+_dev/
+examples/
+
+# --- 가상환경 ---
+.venv/
+venv/
+ENV/
+
+# --- IDE ---
+.vscode/
+.idea/
+*.swp
+
+# --- OS ---
+Thumbs.db
+desktop.ini
+.DS_Store
+
+# --- AI ---
+.workbuddy-ai/
+.agent/
+
+# --- 저장소에 올리지 않는 문서 ---
+CHANGELOG.md
+README_dev.md
