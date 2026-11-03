@@ -710,7 +710,8 @@ class FundAutoUpdaterApp:
         item = self.items_data[idx]
 
         chosen_filepath = filedialog.askopenfilename(
-            initialdir=self.target_dir,
+            initialdir=safe_start_dir(self.target_dir,
+                                      self.app_settings.get("last_picker_dir")),
             title=f"[{item['fund_name']}] 연결할 자금판 엑셀 파일 선택",
             filetypes=[("자금판 엑셀 파일", "*_자금판.xlsx"), ("모든 엑셀 파일", "*.xlsx")]
         )

@@ -47,18 +47,51 @@ class StatusBar(tk.Frame):
         self._right.config(text="")
 
 
+def is_network_path(path):
+    """
+    네트워크 경로인가?
+
+    - `\\\\서버\\공유`  (백슬래시)
+    - `//서버/공유`     (설정 파일에 슬래시로 저장된 경우도 있다 — 실제로 겪음)
+    - `Z:\\` 처럼 **매핑된 네트워크 드라이브**
+    """
+    p = str(path or "").strip().replace("/", "\\")
+    if not p:
+        return False
+    if p.startswith("\\\\"):
+        return True
+    try:
+        import ctypes
+        drive = os.path.splitdrive(p)[0]
+        if drive:
+            # 4 = DRIVE_REMOTE (네트워크 드라이브)
+            return ctypes.windll.kernel32.GetDriveTypeW(drive + "\\") == 4
+    except Exception:
+        pass
+    return False
+
+
 def safe_start_dir(*candidates):
     """폴더 선택창을 여는 위치.
 
-    현재 경로를 그대로 넘기면, 그 경로가 네트워크 공유(\\\\서버\\...)일 때
+    현재 경로를 그대로 넘기면, 그 경로가 네트워크 공유일 때
     윈도우가 접속을 시도하느라 창이 몇 초씩 멈춘다.
-    그래서 네트워크 경로는 건너뛰고, 쓸 만한 위치가 없으면 '문서' 폴더에서 연다.
+    **권한이 없는 공유면 훨씬 오래 멈춘다.**
+    그래서 네트워크 경로와 없는 경로는 건너뛰고,
+    쓸 만한 위치가 없으면 '문서' 폴더에서 연다.
     """
     for path in candidates:
-        if isinstance(path, str):
-            path = path.strip()
-            if path and not path.startswith("\\\\"):
-                return path
+        if not isinstance(path, str):
+            continue
+        path = path.strip()
+        if not path or is_network_path(path):
+            continue
+        try:
+            if not os.path.isdir(path):
+                continue
+        except Exception:
+            continue
+        return path
     home = os.path.expanduser("~")
     docs = os.path.join(home, "Documents")
     return docs if os.path.isdir(docs) else home

@@ -776,7 +776,7 @@ class App:
         def browse():
             p = filedialog.askopenfilename(
                 title="자금판 파일 선택",
-                initialdir=r["folder"] or os.path.expanduser("~"),
+                initialdir=safe_start_dir(r["folder"], self.var_folder.get()),
                 filetypes=[("엑셀 파일", "*.xlsx *.xlsm *.xls"), ("모든 파일", "*.*")],
             )
             if p:
