@@ -166,7 +166,7 @@ def read_cell_openpyxl(path, sheet, cell):
         return None, f"열기 실패: {e}"
     try:
         if sheet not in wb.sheetnames:
-            return None, ""
+            return None, "시트 없음"
         try:
             v = wb[sheet][cell].value
         except Exception:
@@ -673,6 +673,31 @@ class App:
         elif col == "#7":
             self.edit_text(idx, "cell", "셀위치 (예: F2)")
 
+    def _reread_row(self, r):
+        """
+        한 행의 셀값만 다시 읽는다.
+        시트명·셀위치·파일을 고쳤을 때 [스캔] 없이 바로 반영하기 위한 것.
+        """
+        r["value"], r["err"] = None, ""
+        path = r.get("path") or ""
+        if not path or not r.get("sheet") or not r.get("cell"):
+            return
+        if not os.path.isfile(path):
+            r["err"] = "파일 없음"
+            return
+        try:
+            if self.var_do_excel.get():
+                self.var_status.set("값 다시 읽는 중... " + os.path.basename(path))
+                self.root.update_idletasks()
+                res = process_with_excel(
+                    [{"path": path, "sheet": r["sheet"], "cell": r["cell"]}])
+                val, note = res.get(path, (None, ""))
+            else:
+                val, note = read_cell_openpyxl(path, r["sheet"], r["cell"])
+            r["value"], r["err"] = val, note
+        except Exception as e:
+            r["err"] = str(e)
+
     def edit_text(self, idx, key, label):
         r = self.rows[idx]
         dlg = tk.Toplevel(self.root)
@@ -706,8 +731,16 @@ class App:
                 return
             r[key] = val
             self._persist_row(r)
+            # 시트명·셀위치를 고치면 그 행의 값을 바로 다시 읽는다. ([스캔] 불필요)
+            if key in ("sheet", "cell"):
+                self._reread_row(r)
             dlg.destroy()
             self.refresh_tree()
+            if key == "sheet" and (r.get("err") or "") == "시트 없음":
+                messagebox.showwarning(
+                    APP_TITLE,
+                    "'{}' 시트를 찾지 못했습니다.\n시트명을 확인해 주세요.".format(r["sheet"]),
+                    parent=self.root)
 
         ent.bind("<Return>", confirm)
         btn = tk.Frame(dlg, bg="#ffffff")
@@ -768,6 +801,8 @@ class App:
                 self.saved_files[name] = self.saved_files.pop(old_name, {})
                 self.checked[name] = self.checked.pop(old_name, r["checked"])
             self._persist_row(r)
+            # 파일을 바꿨으면 그 행의 값도 바로 다시 읽는다.
+            self._reread_row(r)
             dlg.destroy()
             self.refresh_tree()
 

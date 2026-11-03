@@ -41,7 +41,7 @@ from features.sumcheck import panel as sum_panel
 from features.bgcrepo import panel as bgc_panel
 
 APP_TITLE = "JE automation"
-APP_VERSION = "1.1.8"
+APP_VERSION = "1.1.9"
 
 DEFAULT_GEOMETRY = "1280x820"
 MIN_WIDTH = 1100
