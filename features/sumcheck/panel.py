@@ -21,9 +21,9 @@ import tkinter as tk
 from tkinter import ttk, filedialog, messagebox
 
 from common.config import load_section, save_section
-from common.widgets import StatusBar, safe_start_dir
+from common.widgets import StatusBar, safe_start_dir, normalize_dir
 
-APP_TITLE = "은대 합계 검증"
+APP_TITLE = "합계검증"
 APP_VERSION = "1.0.0"
 CONFIG_FILENAME = "은대_합계_검증_설정.json"
 
@@ -321,7 +321,7 @@ class App:
         pathbox.columnconfigure(1, weight=1)
 
         # 행0: 상위폴더
-        tk.Label(pathbox, text="상위폴더", font=FONT_UI_BOLD, bg="#ffffff",
+        tk.Label(pathbox, text="자금판 폴더", font=FONT_UI_BOLD, bg="#ffffff",
                  width=LBL_W, anchor="w").grid(row=0, column=0, sticky="w", pady=3)
         self.var_folder = tk.StringVar(value=self._initial_folder())
         ttk.Entry(pathbox, textvariable=self.var_folder, font=FONT_UI).grid(
@@ -399,7 +399,7 @@ class App:
     def _initial_folder(self):
         """저장된 상위폴더는 '이 컴퓨터에 없더라도' 그대로 보여준다. (운용지시대장과 같은 방식)
         예전에는 없으면 빈칸으로 만들어서, 저장된 경로가 사라진 것처럼 보였다."""
-        return (self.cfg.get("last_folder") or "").strip()
+        return normalize_dir(self.cfg.get("last_folder"))
 
     def _on_toggle_excel(self):
         self.cfg["do_excel"] = bool(self.var_do_excel.get())
@@ -408,7 +408,7 @@ class App:
     # ---------------- 폴더 선택 ----------------
     def browse_folder(self):
         init = self.var_folder.get() or os.path.expanduser("~")
-        path = filedialog.askdirectory(title="자금판 파일들이 들어있는 상위폴더",
+        path = filedialog.askdirectory(title="자금판 파일들이 들어있는 폴더",
                                        initialdir=safe_start_dir(init))
         if path:
             self.var_folder.set(os.path.normpath(path))
@@ -421,7 +421,7 @@ class App:
             return
         root_dir = self.var_folder.get().strip()
         if not root_dir or not os.path.isdir(root_dir):
-            messagebox.showwarning(APP_TITLE, "상위폴더를 먼저 골라주세요.")
+            messagebox.showwarning(APP_TITLE, "자금판 폴더를 먼저 골라주세요.")
             return
 
         files = find_fund_files(root_dir)

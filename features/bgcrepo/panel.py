@@ -12,7 +12,7 @@ import pdfplumber
 import openpyxl
 
 from common.config import load_section, save_section
-from common.widgets import StatusBar, StatusProxy, safe_start_dir
+from common.widgets import StatusBar, StatusProxy, safe_start_dir, normalize_dir
 
 SECTION_NAME = "BGC Repo"
 
@@ -353,8 +353,8 @@ class RepoApp:
         self.cfg = load_config()
 
         # 저장된 경로는 이 컴퓨터에 없더라도 그대로 둔다 (다른 탭과 같은 규칙)
-        self.target_dir = (self.cfg.get("target_folder") or "").strip()
-        self.pdf_dir = (self.cfg.get("last_pdf_folder") or "").strip()
+        self.target_dir = normalize_dir(self.cfg.get("target_folder"))
+        self.pdf_dir = normalize_dir(self.cfg.get("last_pdf_folder"))
 
         self.fund_map = {}
         self.file_list = []
@@ -372,7 +372,7 @@ class RepoApp:
         # 머리글 (다른 탭과 같은 모양)
         head = tk.Frame(self.root, bg="#0f172a")
         head.pack(fill="x")
-        tk.Label(head, text="BGC 레포 자동반영도구", font=("맑은 고딕", 16, "bold"),
+        tk.Label(head, text="BGC 레포", font=("맑은 고딕", 16, "bold"),
                  bg="#0f172a", fg="#ffffff").pack(side="left", padx=18, pady=(12, 2))
         tk.Label(head, text="레포 거래내역서 PDF를 읽어 자금판에 매수·환매를 자동 반영합니다",
                  font=("맑은 고딕", 10), bg="#0f172a", fg="#cbd5e1").pack(

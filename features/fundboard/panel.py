@@ -531,7 +531,7 @@ class FundAutoUpdaterApp:
         # 통합 프로그램 공통 머리글 (다른 탭과 같은 모양으로 맞춤)
         head = tk.Frame(self.root, bg="#0f172a")
         head.pack(fill="x")
-        tk.Label(head, text="자금판 자동반영도구", font=("맑은 고딕", 16, "bold"),
+        tk.Label(head, text="자금판", font=("맑은 고딕", 16, "bold"),
                  bg="#0f172a", fg="#ffffff").pack(side="left", padx=18, pady=(12, 2))
         tk.Label(head, text="지시내역을 자금판에 자동으로 반영합니다",
                  font=("맑은 고딕", 10), bg="#0f172a", fg="#cbd5e1").pack(
@@ -550,7 +550,7 @@ class FundAutoUpdaterApp:
         BTN_W = 12
 
         # Row 1: 작업 폴더
-        lbl_target = tk.Label(top_frame, text="작업 폴더", font=lbl_font, bg="#ffffff",
+        lbl_target = tk.Label(top_frame, text="자금판 폴더", font=lbl_font, bg="#ffffff",
                               width=LBL_W, anchor="w")
         lbl_target.grid(row=0, column=0, sticky="w", pady=3)
 
@@ -593,7 +593,8 @@ class FundAutoUpdaterApp:
         self.file_combo.grid(row=3, column=1, sticky="ew", padx=6, pady=3)
         self.file_combo.bind("<<ComboboxSelected>>", lambda e: self.load_instruction_data())
 
-        btn_rule = ttk.Button(top_frame, text="사유 매핑 설정", command=self.open_mapping_dialog)
+        btn_rule = ttk.Button(top_frame, text="사유 매핑 설정", width=BTN_W,
+                              command=self.open_mapping_dialog)
         btn_rule.grid(row=3, column=2, sticky="w", pady=3)
 
         # 2. 상태 표시는 화면 맨 아래 공통 표시줄로 이동 (create_widgets 끝에서 만든다)
@@ -802,7 +803,7 @@ class FundAutoUpdaterApp:
 
     def browse_target_folder(self):
         selected = filedialog.askdirectory(initialdir=self._picker_start(self.target_dir),
-                                           title="작업 폴더 선택")
+                                           title="자금판 폴더 선택")
         if selected:
             self.target_dir = clean_path(selected)
             self.folder_path_entry.delete(0, tk.END)

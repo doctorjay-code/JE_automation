@@ -47,6 +47,23 @@ class StatusBar(tk.Frame):
         self._right.config(text="")
 
 
+def normalize_dir(path):
+    """
+    경로 표시를 윈도우 형식으로 통일한다.
+
+    설정 파일에 `//서버/공유/폴더` 처럼 **슬래시**로 저장된 경우가 있어서
+    탭마다 경로 모양이 달라 보였다. (`\\\\서버\\공유\\폴더` 로 맞춘다)
+    빈 값은 그대로 빈 값으로 돌려준다.
+    """
+    p = str(path or "").strip()
+    if not p:
+        return ""
+    try:
+        return os.path.normpath(p)
+    except Exception:
+        return p
+
+
 def is_network_path(path):
     """
     네트워크 경로인가?

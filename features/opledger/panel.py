@@ -23,9 +23,9 @@ from tkinter import ttk, filedialog, messagebox
 import openpyxl
 
 from common.config import load_section, save_section
-from common.widgets import StatusBar, safe_start_dir
+from common.widgets import StatusBar, safe_start_dir, normalize_dir
 
-APP_TITLE = "운용지시대장 자동반영도구"
+APP_TITLE = "운용지시대장"
 APP_VERSION = "1.0.4"
 CONFIG_FILENAME = "운용지시대장_자동반영도구_설정.json"
 
@@ -494,8 +494,8 @@ class App:
         self.items = []
         self.sheets = []
         self.existing = {}   # 시트명 -> 이미 C열에 들어있는 값 집합
-        self.excel_path = self.cfg.get("master_excel", "")
-        self.source_folder = self.cfg.get("source_folder", "")
+        self.excel_path = normalize_dir(self.cfg.get("master_excel"))
+        self.source_folder = normalize_dir(self.cfg.get("source_folder"))
 
         root.title(f"{APP_TITLE}  v{APP_VERSION}")
         root.geometry("1300x780")
@@ -546,7 +546,7 @@ class App:
         pathbox.columnconfigure(1, weight=1)
 
         # 마스터 엑셀
-        tk.Label(pathbox, text="마스터 엑셀", font=FONT_UI_BOLD, bg="#ffffff",
+        tk.Label(pathbox, text="지시대장 엑셀", font=FONT_UI_BOLD, bg="#ffffff",
                  width=LBL_W, anchor="w").grid(row=0, column=0, sticky="w", pady=3)
         self.var_excel = tk.StringVar(value=self.excel_path)
         ttk.Entry(pathbox, textvariable=self.var_excel, font=FONT_UI).grid(
@@ -555,7 +555,7 @@ class App:
                    command=self.browse_excel).grid(row=0, column=2, sticky="w", pady=3)
 
         # 날인본 폴더
-        tk.Label(pathbox, text="날인본 상위폴더", font=FONT_UI_BOLD, bg="#ffffff",
+        tk.Label(pathbox, text="PDF 상위폴더", font=FONT_UI_BOLD, bg="#ffffff",
                  width=LBL_W, anchor="w").grid(row=1, column=0, sticky="w", pady=3)
         self.var_folder = tk.StringVar(value=self.source_folder)
         ttk.Entry(pathbox, textvariable=self.var_folder, font=FONT_UI).grid(
@@ -650,7 +650,7 @@ class App:
     def browse_excel(self):
         init = os.path.dirname(self.excel_path) if self.excel_path else ""
         path = filedialog.askopenfilename(
-            title="마스터 엑셀 선택",
+            title="지시대장 엑셀 선택",
             initialdir=safe_start_dir(init),
             filetypes=[("엑셀 파일", "*.xlsx *.xlsm"), ("모든 파일", "*.*")],
         )
@@ -664,7 +664,7 @@ class App:
 
     def browse_folder(self):
         init = self.source_folder if self.source_folder else ""
-        path = filedialog.askdirectory(title="날인본 상위폴더 선택",
+        path = filedialog.askdirectory(title="PDF 상위폴더 선택",
                                        initialdir=safe_start_dir(init))
         if not path:
             return
@@ -735,7 +735,7 @@ class App:
     def load_sheet_list(self, quiet=False):
         if not self.excel_path or not os.path.exists(self.excel_path):
             if not quiet:
-                messagebox.showwarning(APP_TITLE, "마스터 엑셀 파일을 먼저 선택해 주세요.")
+                messagebox.showwarning(APP_TITLE, "지시대장 엑셀 파일을 먼저 선택해 주세요.")
             return False
         try:
             self.sheets = read_excel_sheets(self.excel_path)
@@ -766,7 +766,7 @@ class App:
 
         folder = self.var_folder.get().strip()
         if not folder or not os.path.isdir(folder):
-            messagebox.showwarning(APP_TITLE, "날인본 상위폴더를 선택해 주세요.")
+            messagebox.showwarning(APP_TITLE, "PDF 상위폴더를 선택해 주세요.")
             return
         self.source_folder = os.path.normpath(folder)
         self.cfg["source_folder"] = self.source_folder
@@ -1051,7 +1051,7 @@ class App:
 
         excel = self.var_excel.get().strip()
         if not excel or not os.path.exists(excel):
-            messagebox.showwarning(APP_TITLE, "마스터 엑셀 파일을 확인해 주세요.")
+            messagebox.showwarning(APP_TITLE, "지시대장 엑셀 파일을 확인해 주세요.")
             return
 
         if excel_is_open(excel):
